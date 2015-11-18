@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Nancy.Extensions;
 using Nancy.Rollbar.Api;
@@ -79,7 +80,10 @@ namespace Nancy.Rollbar {
                 if (rr.PostParams.Count == 0) {
                     rr.PostParams = null;
                 }
-                rr.PostBody = context.Request.Body.AsString();
+                //no "using" statement because I do not want to consume the stream, 
+                //leave it open and let Nancy handle that.
+                rr.PostBody = new StreamReader(context.Request.Body).ReadToEnd();
+                context.Request.Body.Seek(0, SeekOrigin.Begin);
             }
             return rr;
         }
